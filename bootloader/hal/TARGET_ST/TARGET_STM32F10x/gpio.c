@@ -65,19 +65,7 @@ void gpio_set_cdc_led(uint8_t state) {
        led_hw_off(LED1); // LED off
     }
 }
-
-void time_delay_ms(uint32_t delay)
-{
-//    SIM->SCGC5 |= SIM_SCGC5_LPTIMER_MASK;
-//    LPTMR0->CMR = delay;
-//    LPTMR0->PSR = LPTMR_PSR_PCS(1) | LPTMR_PSR_PBYP_MASK;
-//    LPTMR0->CSR |= LPTMR_CSR_TEN_MASK;
-//    while (!(LPTMR0->CSR & LPTMR_CSR_TCF_MASK));
-//    LPTMR0->CSR &= ~LPTMR_CSR_TEN_MASK;
-}
-
 uint8_t gpio_get_pin_loader_state(void) {
-    time_delay_ms(2); //delay 2ms for pull-up enable
     return ( GPIOA->IDR & (1UL << 6));
 }
 

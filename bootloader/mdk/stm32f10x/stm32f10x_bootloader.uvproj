@@ -360,9 +360,9 @@
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls>--diag_suppress=2532</MiscControls>
-              <Define>__RTX, STM32F10X_MD,TARGET_MK20DX, CPU_MK20DX128VFM5</Define>
+              <Define>__RTX, STM32F10X_MD,TARGET_STM32F10X, CPU_STM32F10X_MD</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\shared\USBStack\INC;..\..\Common\inc;..\..\Common\src;..\..\..\shared\cmsis;..\..\..\shared\cmsis\TARGET_Freescale\TARGET_MK20DX;..\..\..\shared\rtos;..\..\..\shared\cmsis\TARGET_Freescale\include;..\..\..\shared\flash_algo\TARGET_Freescale</IncludePath>
+              <IncludePath>..\..\..\shared\USBStack\INC;..\..\Common\inc;..\..\Common\src;..\..\..\shared\cmsis;..\..\..\shared\cmsis\TARGET_ST\TARGET_STM32F10x;..\..\..\shared\rtos;..\..\..\shared\cmsis\TARGET_Freescale\include;..\..\..\shared\flash_algo\TARGET_Freescale</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -504,72 +504,29 @@
           <GroupName>HAL</GroupName>
           <Files>
             <File>
+              <FileName>flash_hal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\TARGET_ST\TARGET_STM32F10x\flash_hal.c</FilePath>
+            </File>
+            <File>
               <FileName>gpio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\hal\TARGET_Freescale\TARGET_MK20DX\gpio.c</FilePath>
+              <FilePath>..\..\hal\TARGET_ST\TARGET_STM32F10x\gpio.c</FilePath>
             </File>
             <File>
               <FileName>read_uid.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\hal\TARGET_Freescale\TARGET_MK20DX\read_uid.c</FilePath>
+              <FilePath>..\..\hal\TARGET_ST\TARGET_STM32F10x\read_uid.c</FilePath>
             </File>
             <File>
-              <FileName>usbd_MK20D5.c</FileName>
+              <FileName>usbd_STM32F103.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\hal\TARGET_Freescale\TARGET_MK20DX\usbd_MK20D5.c</FilePath>
+              <FilePath>..\..\hal\TARGET_ST\TARGET_STM32F10x\usbd_STM32F103.c</FilePath>
             </File>
             <File>
               <FileName>vector_table.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\hal\TARGET_Freescale\TARGET_MK20DX\vector_table.c</FilePath>
-            </File>
-            <File>
-              <FileName>flash_hal.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\hal\TARGET_Freescale\TARGET_MK20DX\flash_hal.c</FilePath>
-              <FileOption>
-                <CommonProperty>
-                  <UseCPPCompiler>2</UseCPPCompiler>
-                  <RVCTCodeConst>0</RVCTCodeConst>
-                  <RVCTZI>0</RVCTZI>
-                  <RVCTOtherData>0</RVCTOtherData>
-                  <ModuleSelection>0</ModuleSelection>
-                  <IncludeInBuild>2</IncludeInBuild>
-                  <AlwaysBuild>2</AlwaysBuild>
-                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
-                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
-                  <PublicsOnly>2</PublicsOnly>
-                  <StopOnExitCode>11</StopOnExitCode>
-                  <CustomArgument></CustomArgument>
-                  <IncludeLibraryModules></IncludeLibraryModules>
-                  <ComprImg>1</ComprImg>
-                </CommonProperty>
-                <FileArmAds>
-                  <Cads>
-                    <interw>2</interw>
-                    <Optim>0</Optim>
-                    <oTime>2</oTime>
-                    <SplitLS>2</SplitLS>
-                    <OneElfS>2</OneElfS>
-                    <Strict>2</Strict>
-                    <EnumInt>2</EnumInt>
-                    <PlainCh>2</PlainCh>
-                    <Ropi>2</Ropi>
-                    <Rwpi>2</Rwpi>
-                    <wLevel>0</wLevel>
-                    <uThumb>2</uThumb>
-                    <uSurpInc>2</uSurpInc>
-                    <uC99>2</uC99>
-                    <useXO>2</useXO>
-                    <VariousControls>
-                      <MiscControls>--gnu --c99</MiscControls>
-                      <Define></Define>
-                      <Undefine></Undefine>
-                      <IncludePath></IncludePath>
-                    </VariousControls>
-                  </Cads>
-                </FileArmAds>
-              </FileOption>
+              <FilePath>..\..\hal\TARGET_ST\TARGET_STM32F10x\vector_table.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -717,69 +674,6 @@
               <FilePath>..\..\..\shared\rtos\rt_Timer.c</FilePath>
             </File>
           </Files>
-        </Group>
-        <Group>
-          <GroupName>flash</GroupName>
-          <GroupOption>
-            <CommonProperty>
-              <UseCPPCompiler>0</UseCPPCompiler>
-              <RVCTCodeConst>0</RVCTCodeConst>
-              <RVCTZI>0</RVCTZI>
-              <RVCTOtherData>0</RVCTOtherData>
-              <ModuleSelection>0</ModuleSelection>
-              <IncludeInBuild>2</IncludeInBuild>
-              <AlwaysBuild>2</AlwaysBuild>
-              <GenerateAssemblyFile>2</GenerateAssemblyFile>
-              <AssembleAssemblyFile>2</AssembleAssemblyFile>
-              <PublicsOnly>2</PublicsOnly>
-              <StopOnExitCode>11</StopOnExitCode>
-              <CustomArgument></CustomArgument>
-              <IncludeLibraryModules></IncludeLibraryModules>
-              <ComprImg>1</ComprImg>
-            </CommonProperty>
-            <GroupArmAds>
-              <Cads>
-                <interw>2</interw>
-                <Optim>0</Optim>
-                <oTime>2</oTime>
-                <SplitLS>2</SplitLS>
-                <OneElfS>2</OneElfS>
-                <Strict>2</Strict>
-                <EnumInt>2</EnumInt>
-                <PlainCh>2</PlainCh>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <wLevel>0</wLevel>
-                <uThumb>2</uThumb>
-                <uSurpInc>2</uSurpInc>
-                <uC99>2</uC99>
-                <useXO>2</useXO>
-                <VariousControls>
-                  <MiscControls>--gnu --c99</MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Cads>
-              <Aads>
-                <interw>2</interw>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <thumb>2</thumb>
-                <SplitLS>2</SplitLS>
-                <SwStkChk>2</SwStkChk>
-                <NoWarn>2</NoWarn>
-                <uSurpInc>2</uSurpInc>
-                <useXO>2</useXO>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Aads>
-            </GroupArmAds>
-          </GroupOption>
         </Group>
       </Groups>
     </Target>
