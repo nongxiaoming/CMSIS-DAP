@@ -18,7 +18,12 @@
 
 #include "stdint.h"
 
+#if defined(TARGET_STM32F10X)
+#define FLASH_BASE_ADDR    (0x8000000)
+#define START_APP_ADDRESS (FLASH_BASE_ADDR+0x5000)
+#else
 #define START_APP_ADDRESS (0x5000)
+#endif
 
 #if defined(TARGET_LPC11U35)
   #define SECTOR_SIZE       (0x1000)
