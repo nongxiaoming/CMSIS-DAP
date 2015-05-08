@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "MK20D5.h"
+#include "stm32f10x.h"
 #include "read_uid.h"
 
+#define STM32_UUID ((uint32_t *)0x1FFF7A10)
+
 void read_unique_id(uint32_t *id) {
-    *id = SIM->UIDL ^ SIM->UIDML ^ SIM->UIDMH ^ SIM->UIDH;
+    *id = STM32_UUID[0] ^ STM32_UUID[1] ^ STM32_UUID[2];
 }
