@@ -30,6 +30,9 @@
 #elif defined(TARGET_ATSAM3U2C)
   #include "sam3u.h"
   #define WANTED_SIZE_IN_KB     (128)
+#elif defined(TARGET_STM32F10X)
+  #include "stm32f10x.h"
+  #define WANTED_SIZE_IN_KB     (128)
 #endif
 
 //------------------------------------------------------------------- CONSTANTS

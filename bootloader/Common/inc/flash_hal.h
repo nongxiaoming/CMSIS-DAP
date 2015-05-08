@@ -31,6 +31,9 @@
 #elif defined(TARGET_ATSAM3U2C)
   #define SECTOR_SIZE       (0x1000)
   #define NB_SECTOR         (32)
+#elif defined(TARGET_STM32F10X)
+  #define SECTOR_SIZE       (0x400)
+  #define NB_SECTOR         (128)
 #endif
 
 #define END_FLASH         (NB_SECTOR*SECTOR_SIZE)
