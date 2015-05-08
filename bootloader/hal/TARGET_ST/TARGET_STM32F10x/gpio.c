@@ -13,51 +13,72 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "MK20D5.h"
+#include "stm32f10x.h"
 #include "gpio.h"
 
+#define LED0 0
+#define LED1 1
+#define LED0_PIN 10
+#define LED1_PIN 11
+
+#define led_hw_on(led)  GPIOB->BRR|=0x01<<(LED0_PIN+led)
+#define led_hw_off(led) GPIOB->BSRR|=0x01<<(LED0_PIN+led)
+
 void gpio_init(void) {
-    // clock for LED and button
-    SIM->SCGC5 |= SIM_SCGC5_PORTD_MASK | SIM_SCGC5_PORTB_MASK;
+    /* enable the clock of GPIOA and GPIOB. */
+    RCC->APB2RSTR |= RCC_APB2ENR_IOPAEN|RCC_APB2ENR_IOPBEN;
 
-    // Green LED, only one LED available
-    PORTD->PCR[4] = PORT_PCR_MUX(1);
-    PTD->PDOR = 1UL << 4;
-    PTD->PDDR = 1UL << 4;
-
-    // RST button
-    PORTB->PCR[1] = PORT_PCR_PS_MASK | PORT_PCR_PE_MASK | PORT_PCR_PFE_MASK | PORT_PCR_MUX(1);
+    /* clear the PB10,PB11 GPIO configure */ 
+	  GPIOB->CRH&=~(0xff<<3);
+	  //set the PB10,PB11 as output
+    GPIOB->CRH |= GPIO_CRH_MODE10| GPIO_CRH_MODE11;
+    //turn off the led0,led1
+	  GPIOB->ODR |= GPIO_ODR_ODR10|GPIO_ODR_ODR11;
+	  /* clear the PA6 GPIO configure */ 
+	  GPIOA->CRL&=~(0x0f<<6);
+	  //set the PA6 as input
+    GPIOA->CRH |= (0x08 << 6);
+	  /* PA6 pull-up*/
+	  GPIOA->ODR |= (0x01 << 6);                             
 }
 
 void gpio_set_dap_led(uint8_t state) {
     if (state) {
-        PTD->PCOR  |= 1UL << 4; // LED on
+        led_hw_on(LED0); // LED on
     } else {
-        PTD->PSOR  |= 1UL << 4; // LED off
+       led_hw_off(LED0); // LED off
     }
 }
 
 void gpio_set_msd_led(uint8_t state) {
-    gpio_set_dap_led(state);
+     if (state) {
+        led_hw_on(LED1); // LED on
+    } else {
+       led_hw_off(LED1); // LED off
+    }
 }
 
 void gpio_set_cdc_led(uint8_t state) {
-    gpio_set_dap_led(state);
+     if (state) {
+        led_hw_on(LED1); // LED on
+    } else {
+       led_hw_off(LED1); // LED off
+    }
 }
 
 void time_delay_ms(uint32_t delay)
 {
-    SIM->SCGC5 |= SIM_SCGC5_LPTIMER_MASK;
-    LPTMR0->CMR = delay;
-    LPTMR0->PSR = LPTMR_PSR_PCS(1) | LPTMR_PSR_PBYP_MASK;
-    LPTMR0->CSR |= LPTMR_CSR_TEN_MASK;
-    while (!(LPTMR0->CSR & LPTMR_CSR_TCF_MASK));
-    LPTMR0->CSR &= ~LPTMR_CSR_TEN_MASK;
+//    SIM->SCGC5 |= SIM_SCGC5_LPTIMER_MASK;
+//    LPTMR0->CMR = delay;
+//    LPTMR0->PSR = LPTMR_PSR_PCS(1) | LPTMR_PSR_PBYP_MASK;
+//    LPTMR0->CSR |= LPTMR_CSR_TEN_MASK;
+//    while (!(LPTMR0->CSR & LPTMR_CSR_TCF_MASK));
+//    LPTMR0->CSR &= ~LPTMR_CSR_TEN_MASK;
 }
 
 uint8_t gpio_get_pin_loader_state(void) {
     time_delay_ms(2); //delay 2ms for pull-up enable
-    return (PTB->PDIR & (1UL << 1));
+    return ( GPIOA->IDR & (1UL << 6));
 }
 
 
