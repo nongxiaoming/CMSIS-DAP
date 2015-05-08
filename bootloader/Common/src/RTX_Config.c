@@ -73,6 +73,8 @@
     #define OS_CLOCK       48000000
   #elif defined(TARGET_ATSAM3U2C)
     #define OS_CLOCK       96000000
+	#elif defined(TARGET_STM32F10X)
+    #define OS_CLOCK       72000000
   #endif
 #endif
 
