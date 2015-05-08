@@ -11,8 +11,6 @@
 
 /* Double Buffering is not yet supported                                      */
 
-#define __STM32
-
 #include <RTL.h>
 #include <rl_usb.h>
 #include "usbreg.h"
@@ -102,17 +100,13 @@ void USBD_Init (void) {
   USBD_IntrEna ();                      /* Enable USB Interrupts              */
 
   /* Control USB connecting via SW                                            */
-#ifdef __STM32
-  RCC->APB2ENR |= (1 << 5);             /* enable clock for GPIOD             */
-  GPIOD->BSRR =  0x0004;                /* set PD2                            */
-  GPIOD->CRL &= ~0x00000F00;            /* clear port PD2                     */
-  GPIOD->CRL |=  0x00000700;            /* PD2 GP output open-drain, 50 MHz   */
-#endif
-#ifdef __STM32E
-  RCC->APB2ENR |= (1 << 3);             /* enable clock for GPIOB             */
-  GPIOB->BSRR =  0x4000;                /* set PB14                           */
-  GPIOB->CRH &= ~0x0F000000;            /* clear port PB14                    */
-  GPIOB->CRH |=  0x07000000;            /* PB14 GP output open-drain, 50 MHz  */
+#ifdef TARGET_STM32F10X
+  RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;   /* enable clock for GPIOA             */
+  GPIOA->BRR =  (0x01 << 8);            /* reset PA8                            */
+  GPIOA->CRH &= ~0x0000000F;            /* clear port PA8                     */
+  GPIOA->CRH |=  GPIO_CRH_MODE8;       /* PA8 output open-drain, 50 MHz   */
+#else
+#warning "please configure the usb connect gpio!"
 #endif
 }
 
@@ -127,23 +121,22 @@ void USBD_Init (void) {
 void USBD_Connect (BOOL con) {
 
   if (con) {
-#ifdef __STM32
-    GPIOD->BRR = 0x0004;                /* reset PD2                          */
+#ifdef TARGET_STM32F10X
+    GPIOA->BSRR = (0x01<<8);                /* reset PA8                          */
+#else
+#warning "please configure the usb connect gpio!"
 #endif
-#ifdef __STM32E
-    GPIOB->BRR = 0x4000;                /* reset PB14                         */
-#endif
+
     CNTR = CNTR_FRES;                   /* Force USB Reset                    */
     CNTR = 0;
     ISTR = 0;                           /* Clear Interrupt Status             */
     CNTR = CNTR_RESETM | CNTR_SUSPM | CNTR_WKUPM; /* USB Interrupt Mask       */
   } else {
     CNTR = CNTR_FRES | CNTR_PDWN;       /* Switch Off USB Device              */
-#ifdef __STM32
-    GPIOD->BSRR = 0x0004;               /* set PD2                            */
-#endif
-#ifdef __STM32E
-    GPIOB->BSRR = 0x4000;               /* set PB14                           */
+#ifdef TARGET_STM32F10X
+    GPIOA->BRR = (0x01<<8);               /* reset PA8                          */
+#else
+#warning "please configure the usb connect gpio!"
 #endif
   }
 }
