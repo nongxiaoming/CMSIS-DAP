@@ -41,7 +41,11 @@
   #define NB_SECTOR         (128)
 #endif
 
+#if defined(TARGET_STM32F10X)
+#define END_FLASH         (FLASH_BASE_ADDR+NB_SECTOR*SECTOR_SIZE)
+#else
 #define END_FLASH         (NB_SECTOR*SECTOR_SIZE)
+#endif
 
 int  flash_hal_init         (uint32_t clk);
 int  flash_hal_uninit       (uint32_t fnc);

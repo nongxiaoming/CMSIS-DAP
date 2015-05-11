@@ -49,7 +49,7 @@ int flash_hal_init(uint32_t clk)
 {
 
   // Zero Wait State
-  FLASH->ACR  = 0x00000000;
+  //FLASH->ACR  = 0x00000000;
 
   // Unlock Flash    
   FLASH->KEYR  = FLASH_KEY1;
