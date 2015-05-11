@@ -122,7 +122,7 @@ void USBD_Connect (BOOL con) {
 
   if (con) {
 #ifdef TARGET_STM32F10X
-    GPIOA->BSRR = (0x01<<8);                /* reset PA8                          */
+    GPIOA->BSRR = (0x01<<8);                /* set PA8                          */
 #else
 #warning "please configure the usb connect gpio!"
 #endif

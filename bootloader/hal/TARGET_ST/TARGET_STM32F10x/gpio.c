@@ -26,7 +26,7 @@
 
 void gpio_init(void) {
     /* enable the clock of GPIOA and GPIOB. */
-    RCC->APB2RSTR |= RCC_APB2ENR_IOPAEN|RCC_APB2ENR_IOPBEN;
+    RCC->APB2ENR |= RCC_APB2ENR_IOPAEN|RCC_APB2ENR_IOPBEN;
 
     /* clear the PB10,PB11 GPIO configure */ 
 	  GPIOB->CRH&=~(0xff<<3);
