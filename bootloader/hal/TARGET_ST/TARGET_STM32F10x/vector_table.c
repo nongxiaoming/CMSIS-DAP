@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "MK20D5.h"
+#include "stm32f10x.h"
 #include "vector_table.h"
 #include "flash_hal.h"
 
-#define NVIC_NUM_VECTORS (16 + 46)            // CORE + MCU Peripherals
-#define NVIC_RAM_VECTOR_ADDRESS (0x1FFFE000)  // Vectors positioned at start of RAM
+#define NVIC_NUM_VECTORS (16 + 43)            // CORE + MCU Peripherals
+#define NVIC_RAM_VECTOR_ADDRESS (0x20000000)  // Vectors positioned at start of RAM
 
 void relocate_vector_table() {
     uint32_t *vectors;
