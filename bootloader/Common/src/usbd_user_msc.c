@@ -467,6 +467,8 @@ static void disable_usb_irq(void){
     NVIC_DisableIRQ(USB0_IRQn);
 #elif defined(TARGET_ATSAM3U2C)
     NVIC_DisableIRQ(UDPHS_IRQn);
+#elif defined(TARGET_STM32F10X)
+    NVIC_DisableIRQ(USB_LP_CAN1_RX0_IRQn);
 #endif
 }
 
@@ -477,6 +479,8 @@ static void enable_usb_irq(void){
     NVIC_EnableIRQ(USB0_IRQn);
 #elif defined(TARGET_ATSAM3U2C)
     NVIC_EnableIRQ(UDPHS_IRQn);
+#elif defined(TARGET_STM32F10X)
+    NVIC_EnableIRQ(USB_LP_CAN1_RX0_IRQn);
 #endif
 }
 
