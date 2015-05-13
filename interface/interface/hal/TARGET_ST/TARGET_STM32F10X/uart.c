@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "MK20D5.h"
+#include "stm32f10x.h"
 #include "uart.h"
 #include "string.h"
 
@@ -50,122 +50,100 @@ void clear_buffers(void)
 
 int32_t uart_initialize (void) {
 
-    NVIC_DisableIRQ(UART1_RX_TX_IRQn);
+  RCC->APB2ENR |=  (   1UL <<  0);         /* enable clock Alternate Function */
+  AFIO->MAPR   &= ~(   1UL <<  2);         /* clear USART1 remap              */
 
-    clear_buffers();
+  RCC->APB2ENR |=  (   1UL <<  2);         /* enable GPIOA clock              */
+  GPIOA->CRH   &= ~(0xFFUL <<  4);         /* clear PA9, PA10                 */
+  GPIOA->CRH   |=  (0x0BUL <<  4);         /* USART1 Tx (PA9) output push-pull*/
+  GPIOA->CRH   |=  (0x04UL <<  8);         /* USART1 Rx (PA10) input floating */
 
-    // enable clk PORTC
-    SIM->SCGC5 |= SIM_SCGC5_PORTC_MASK;
+  RCC->APB2ENR |=  (   1UL << 14);         /* enable USART1 clock             */
 
-    // enable clk uart
-    SIM->SCGC4 |= SIM_SCGC4_UART1_MASK;
+  uart_reset ();
+  NVIC_EnableIRQ(USART1_IRQn);             /* Enable USART interrupt          */
 
-    // disable interrupt
-    NVIC_DisableIRQ (UART1_RX_TX_IRQn);
-
-    // Enable receiver and transmitter
-    UART1->C2 |= UART_C2_RE_MASK | UART_C2_TE_MASK;
-
-    // alternate 3: UART1
-    PORTC->PCR[3] = (3 << 8);
-    PORTC->PCR[4] = (3 << 8);
-
-    // Enable receive interrupt
-    UART1->C2 |= UART_C2_RIE_MASK;
-
-    NVIC_ClearPendingIRQ(UART1_RX_TX_IRQn);
-
-    NVIC_EnableIRQ(UART1_RX_TX_IRQn);
-
-    return 1;
+  return 1;
 }
 
 int32_t uart_uninitialize (void) {
 
-    // transmitter and receiver disabled
-    UART1->C2 &= ~(UART_C2_RE_MASK | UART_C2_TE_MASK);
+  RCC->APB2ENR &= ~(1 << 14);
+  
+  GPIOA->CRH   &= ~(0xFF << 4);
+  GPIOA->CRH   |=  (0x44 << 4);
 
-    // disable interrupt
-    UART1->C2 &= ~(UART_C2_RIE_MASK | UART_C2_TIE_MASK);
-
-    clear_buffers();
+	NVIC_DisableIRQ(USART1_IRQn);             /* Disable USART interrupt          */
+    
+	clear_buffers();
 
     return 1;
 }
 
 int32_t uart_reset (void) {
+   
 
-    // disable interrupt
-    NVIC_DisableIRQ (UART1_RX_TX_IRQn);
+  NVIC_DisableIRQ(USART1_IRQn);         /* Enable USART interrupt             */
 
     clear_buffers();
 
-    // disable TIE interrupt
-    UART1->C2 &= ~(UART_C2_TIE_MASK);
-
     tx_in_progress = 0;
 
-    // enable interrupt
-    NVIC_EnableIRQ (UART1_RX_TX_IRQn);
+  NVIC_EnableIRQ (USART1_IRQn);         /* Enable USART interrupt             */
+	
 
     return 1;
 }
 
 int32_t uart_set_configuration (UART_Configuration *config) {
 
-    uint8_t data_bits = 8;
-    uint8_t parity_enable = 0;
-    uint8_t parity_type = 0;
-    uint32_t dll;
+  uint32_t i, cr1, cr2;
 
-    // disable interrupt
-    NVIC_DisableIRQ (UART1_RX_TX_IRQn);
+  /* USART supports:
+      8bit data; even, odd and none parity; 1, 1.5 and 2 stop bits */
+  
+  /* Data bits */
+  if (config->DataBits != UART_DATA_BITS_8) return(0);
 
-    // Disable receiver and transmitter while updating
-    UART1->C2 &= ~(UART_C2_RE_MASK | UART_C2_TE_MASK);
+  /* Parity */
+  switch (config->Parity) {
+    case UART_PARITY_NONE: cr1 = 0;                                 break;
+    case UART_PARITY_EVEN: cr1 = (1 << 12) | (1 << 10);             break;
+    case UART_PARITY_ODD:  cr1 = (1 << 12) | (1 << 10) | (1 <<  9); break;
+    default: return (0);
+  }
 
-    clear_buffers();
+  /* Stop bits */
+  switch (config->StopBits) {
+    case UART_STOP_BITS_1:    cr2 = 0;         break;
+    case UART_STOP_BITS_2:    cr2 = (2 << 12); break;
+    case UART_STOP_BITS_1_5:  cr2 = (3 << 12); break;
+    default: return (0);
+  }
+  
+  /* Baudrate */
+  Baudrate = config->Baudrate;
+  USART1->BRR = __USART_BRR(UART_CLK, Baudrate);
+  
+  /* Flow control */
+  FlowControl = config->FlowControl;
 
-    // set data bits, stop bits, parity
-    if ((config->DataBits < 8) || (config->DataBits > 9)) {
-        data_bits = 8;
-    }
-    data_bits -= 8;
+  switch (config->FlowControl) {        /* Prepare flow control value for MR  */
+    case UART_FLOW_CONTROL_NONE:
+      FlowControl = UART_FLOW_CONTROL_NONE;
+      break;
+    case UART_FLOW_CONTROL_RTS_CTS:
+    default:
+      return (0);
+  }
 
-    if (config->Parity == 1) {
-        parity_enable = 1;
-        parity_type = 1;
-        data_bits++;
-    } else if (config->Parity == 2) {
-        parity_enable = 1;
-        parity_type = 0;
-        data_bits++;
-    }
-
-    // does not support 10 bit data comm
-    if (data_bits == 2) {
-        data_bits = 0;
-        parity_enable = 0;
-        parity_type = 0;
-    }
-
-    // data bits, parity and parity mode
-    UART1->C1 = data_bits << UART_C1_M_SHIFT
-              | parity_enable << UART_C1_PE_SHIFT
-              | parity_type << UART_C1_PT_SHIFT;
-
-    dll =  SystemCoreClock / (16 * config->Baudrate);
-
-    // set baudrate
-    UART1->BDH = (UART1->BDH & ~(UART_BDH_SBR_MASK)) | ((dll >> 8) & UART_BDH_SBR_MASK);
-    UART1->BDL = (UART1->BDL & ~(UART_BDL_SBR_MASK)) | (dll & UART_BDL_SBR_MASK);
-
-    // Enable transmitter and receiver
-    UART1->C2 |= UART_C2_RE_MASK | UART_C2_TE_MASK;
-
-    // Enable UART interrupt
-    NVIC_ClearPendingIRQ (UART1_RX_TX_IRQn);
-    NVIC_EnableIRQ (UART1_RX_TX_IRQn);
+  USART1->CR2 = cr2;                    /* stop bits settings                 */
+  for (i = 0; i < 0x1000; i++) __NOP(); /* avoid unwanted output              */
+  USART1->CR1 = (1 << 13) |             /* USART enable                       */
+               (1 <<  3) |              /* transmiter enable                  */
+               (1 <<  2) |              /* receiver enable                    */
+               (1 <<  5) |              /* enable RXNE interrupt              */
+                cr1;                    /* parity and data bit settings       */
 
     return 1;
 }

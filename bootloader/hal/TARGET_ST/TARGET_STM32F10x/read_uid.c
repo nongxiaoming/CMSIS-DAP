@@ -19,5 +19,5 @@
 #define STM32_UUID ((uint32_t *)0x1FFF7A10)
 
 void read_unique_id(uint32_t *id) {
-    *id = STM32_UUID[0] ^ STM32_UUID[1] ^ STM32_UUID[2];
+    *id = 0x11223344;//STM32_UUID[0] ^ STM32_UUID[1] ^ STM32_UUID[2];
 }

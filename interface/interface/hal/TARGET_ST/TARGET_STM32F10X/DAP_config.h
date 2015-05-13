@@ -185,35 +185,38 @@ Configures the DAP Hardware I/O pins for Serial Wire Debug (SWD) mode:
  - TDI, TMS, nTRST to HighZ mode (pins are unused in SWD mode).
 */
 static __inline void PORT_SWD_SETUP (void) {
-    PIN_SWCLK_GPIO->PSOR     = 1 << PIN_SWCLK_BIT;
-    PIN_SWDIO_OUT_GPIO->PSOR = 1 << PIN_SWDIO_OUT_BIT;
-    PIN_SWDIO_NOE_GPIO->PCOR = 1 << PIN_SWDIO_NOE_BIT;
-    PIN_SWD_NOE_GPIO->PCOR   = 1 << PIN_SWD_NOE_BIT;
-    PIN_nRESET_GPIO->PSOR    = 1 << PIN_nRESET_BIT;
+  PIN_SWCLK_TCK_PORT->BSRR = (PIN_SWCLK_TCK | PIN_SWDIO_TMS);
+	PIN_nRESET_PORT->BRR = PIN_nRESET;
 
-    PTA->PDDR = PTA->PDDR | (1<<4);
-    PTA->PCOR = PTA->PCOR | (1<<4);
-    PTB->PCOR = PTB->PCOR | (1<<0);
-
-    PTB->PSOR = (1<<1);
-    PTB->PDDR = PTB->PDDR | (1<<1); //output
-
-    PORTB->PCR[1] = PORT_PCR_PS_MASK|PORT_PCR_PE_MASK|PORT_PCR_PFE_MASK|PORT_PCR_IRQC(00)|PORT_PCR_MUX(1); /* IRQ Falling edge */    //disable interrupt
+#if ( DAP_JTAG != 0 )
+	GPIO_INIT(PIN_TDI_PORT,       INIT_SWD_TDx);
+#endif
+	GPIO_INIT(PIN_SWCLK_TCK_PORT, INIT_SWD_PINS);
+	PIN_nRESET_HIGH();
+}
 }
 
+const GPIO_InitTypeDef INIT_OFF_1 = {
+#if ( DAP_JTAG != 0 )
+	(PIN_SWCLK_TCK | PIN_SWDIO_TMS | PIN_TDI | PIN_TDO),
+#else
+	(PIN_SWCLK_TCK | PIN_SWDIO_TMS),
+#endif
+	(GPIOSpeed_TypeDef)0,
+	GPIO_Mode_IPU
+};
+const GPIO_InitTypeDef INIT_OFF_2 = {
+	(PIN_nRESET),
+	(GPIOSpeed_TypeDef)0,
+	GPIO_Mode_IPU
+};
 /** Disable JTAG/SWD I/O Pins.
 Disables the DAP Hardware I/O pins which configures:
  - TCK/SWCLK, TMS/SWDIO, TDI, TDO, nTRST, nRESET to High-Z mode.
 */
 static __inline void PORT_OFF (void) {
-    PIN_SWDIO_NOE_GPIO->PSOR = 1 << PIN_SWDIO_NOE_BIT;
-    PIN_SWD_NOE_GPIO->PSOR   = 1 << PIN_SWD_NOE_BIT;
-    PIN_nRESET_GPIO->PSOR    = 1 << PIN_nRESET_BIT;
-
-    PTC->PCOR = PTB->PCOR | (1<<5);
-
-    PORTB->PCR[1] |= PORT_PCR_ISF_MASK;
-    PORTB->PCR[1] = PORT_PCR_PS_MASK|PORT_PCR_PE_MASK|PORT_PCR_PFE_MASK|PORT_PCR_IRQC(10)|PORT_PCR_MUX(1); /* IRQ Falling edge */ ;   //disable interrupt
+  GPIO_INIT(PIN_SWCLK_TCK_PORT, INIT_OFF_1);
+	GPIO_INIT(PIN_nRESET_PORT,    INIT_OFF_2);
 }
 
 
